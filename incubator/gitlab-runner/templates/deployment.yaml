@@ -12,7 +12,7 @@ spec:
   replicas: 1
   replicas: {{ .Values.replicaCount }}
   selector:
-    matchlabels:
+    matchLabels:
       name: {{ template "gitlab.fullname" . }}
   template:
     metadata:
