@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "gitlab.name" . }}
+  namespace: {{ .Values.gitlab.namespace }}
+data:
+  config.toml: |
+    concurrent = 4
+
+    [[runners]]
+      name = "Kubernetes Gitlab Runner"
+      url = "{{ .Values.gitlab.url }}"
+      token = "{{ .Values.gitlab.token }}"
+      executor = "kubernetes"
+      [runners.kubernetes]
+        namespace = "{{ .Values.gitlab.namespace }}"
+        image = "busybox"
