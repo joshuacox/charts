@@ -77,3 +77,10 @@ you can change the values.yaml to disable persistence and use an emptyDir instea
 !!! WARNING !!!
 
 Please NOT use emptyDir for production cluster! Your wallets will be lost on container restart!
+
+notes:
+
+```
+kubectl create configmap walletpassword --from-file=./password.txt
+kubectl create configmap example-genesis-json-tpl --from-file=./genesis.json.tpl
+```
