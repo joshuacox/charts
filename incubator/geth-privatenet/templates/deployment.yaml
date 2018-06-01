@@ -27,18 +27,20 @@ spec:
             - name: ws
               containerPort: {{ .Values.wsPort }}
           volumeMounts:
-            - name: data
-              mountPath: /root
+            - name:  node
+              mountPath: /node
+            - name: password
+              mountPath: /pass
       initContainers:
-        - name: mkdir-{{ template "geth.fullname" . }}
+        - name: lsdir-{{ template "geth.fullname" . }}
           image: busybox
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
-          command: [ "sh", "-c", "mkdir -p /node"]
+          command: [ "sh", "-c", "ls /node"]
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           volumeMounts:
-            - name: data
-              mountPath: /root
+            - name:  node
+              mountPath: /node
         - name: catgen-{{ template "geth.fullname" . }}
           image: busybox
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
@@ -46,8 +48,8 @@ spec:
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           volumeMounts:
-            - name: data
-              mountPath: /root
+            - name:  node
+              mountPath: /node
             - name: config
               mountPath: /gen
         - name: catpass-{{ template "geth.fullname" . }}
@@ -57,8 +59,8 @@ spec:
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           volumeMounts:
-            - name: data
-              mountPath: /root
+            - name:  node
+              mountPath: /node
             - name: password
               mountPath: /pass
         - name: walletinit-{{ template "geth.fullname" . }}
@@ -68,8 +70,19 @@ spec:
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           volumeMounts:
-            - name: data
-              mountPath: /root
+            - name:  node
+              mountPath: /node
+            - name: password
+              mountPath: /pass
+        - name: lswallet-{{ template "geth.fullname" . }}
+          image: busybox
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          command: [ "sh", "-c", 'ls -Rl /node']
+          resources:
+  {{ toYaml .Values.resources | indent 10 }}
+          volumeMounts:
+            - name:  node
+              mountPath: /node
             - name: password
               mountPath: /pass
         - name: getwallet-{{ template "geth.fullname" . }}
@@ -79,8 +92,8 @@ spec:
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           volumeMounts:
-            - name: data
-              mountPath: /root
+            - name:  node
+              mountPath: /node
             - name: password
               mountPath: /pass
         - name: blockchainit-{{ template "geth.fullname" . }}
@@ -90,8 +103,8 @@ spec:
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           volumeMounts:
-            - name: data
-              mountPath: /root
+            - name:  node
+              mountPath: /node
             - name: config
               mountPath: /gen
       volumes:
@@ -107,7 +120,7 @@ spec:
             items:
             - key: password.txt
               path: password.txt
-        - name: data
+        - name: node
         {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (include "geth.fullname" .) }}
