@@ -1,0 +1,73 @@
+image:
+  repository: "ethereum/client-go"
+  tag: "alpine"
+  pullPolicy: IfNotPresent
+
+rpcPort: 8545
+wsPort: 8546
+rpcApi: "net,eth,personal,web3"
+wsApi: "net,eth,personal,web3"
+wsOrigins: "*"
+networkId: 1
+syncMode: "fast"
+
+genesisjson: |
+  {
+      "config": {
+          "chainId": 1515,
+          "homesteadBlock": 1,
+          "eip150Block": 2,
+          "eip150Hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "eip155Block": 3,
+          "eip158Block": 3,
+          "byzantiumBlock": 4,
+          "clique": {
+              "period": 1,
+              "epoch": 30000
+          }
+      },
+      "nonce": "0x0",
+      "timestamp": "0x5a722c92",
+      "extraData":
+  "0x000000000000000000000000000000000000000000000000000000000000000008a58f09194e403d02a1928a7bf78646cfc260b087366ef81db496edd0ea2055ca605e8686eec1e60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "gasLimit": "0x59A5380",
+      "difficulty": "0x1",
+      "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "coinbase": "0x0000000000000000000000000000000000000000",
+      "alloc": {
+          "08a58f09194e403d02a1928a7bf78646cfc260b0": {
+              "balance": "0x200000000000000000000000000000000000000000000000000000000000000"
+          },
+          "87366ef81db496edd0ea2055ca605e8686eec1e6": {
+              "balance": "0x200000000000000000000000000000000000000000000000000000000000000"
+          },
+          "F464A67CA59606f0fFE159092FF2F474d69FD675": {
+              "balance": "0x200000000000000000000000000000000000000000000000000000000000000"
+          }
+      },
+      "number": "0x0",
+      "gasUsed": "0x0",
+      "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  }
+
+
+persistence:
+  enabled: true
+  ## database data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClass: "-"
+  accessMode: ReadWriteOnce
+  size: 300Gi
+
+## Configure resource requests and limits
+## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+##
+resources: {}
+#  requests:
+#    memory: 512Mi
+#    cpu: 300m
