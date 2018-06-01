@@ -75,7 +75,7 @@ spec:
         - name: getwallet-{{ template "geth.fullname" . }}
           image: busybox
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
-          command: [ "sh", "-c", "ls /node/keystore | sed 's/.*--\(.*\)$/\1/' > /node/walletid.txt"]
+          command: [ "sh", "-c", 'ls /node/keystore | sed "s/.*--\(.*\)$/\1/" > /node/walletid.txt']
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           volumeMounts:
