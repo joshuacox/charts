@@ -42,7 +42,7 @@ spec:
         - name: setpw-{{ template "geth.fullname" . }}
           image: busybox
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
-          command: ["echo", "{{ .Values.walletpassword }}", ">", "/root/node/password.txt"]
+          command: ["echo", "{{ .Values.walletpassword }}", ">/root/node/password.txt"]
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           volumeMounts:
@@ -51,7 +51,7 @@ spec:
         - name: getgenesis-{{ template "geth.fullname" . }}
           image: busybox
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
-          command: ["echo", "{{ .Values.genesisjson }}", "-o", "/root/node/genesis.json"]
+          command: ["echo", "{{ .Values.genesisjson }}", ">/root/node/genesis.json"]
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           volumeMounts:
