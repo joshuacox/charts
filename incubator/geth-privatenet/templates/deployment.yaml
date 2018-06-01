@@ -18,7 +18,7 @@ spec:
         - name: {{ template "geth.fullname" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
-          command: ["/geth", "--networkid", "{{ .Values.networkId }}", "--syncmode", "{{ .Values.syncMode }}", "--rpc", "--rpcapi", "{{ .Values.rpcApi }}", "--rpcaddr", "0.0.0.0", "--rpcport", "{{ .Values.rpcPort }}", "--ws", "--wsaddr", "0.0.0.0", "--wsport", "{{ .Values.wsPort }}", "--wsapi", "{{ .Values.wsApi }}", "--wsorigins", "{{ .Values.wsOrigins }}"]
+          command: ["/geth", "--networkid", "{{ .Values.networkId }}", "--syncmode", "{{ .Values.syncMode }}", "--rpc", "--rpcapi", "{{ .Values.rpcApi }}", "--rpcaddr", "0.0.0.0", "--rpcport", "{{ .Values.rpcPort }}", "--ws", "--wsaddr", "0.0.0.0", "--wsport", "{{ .Values.wsPort }}", "--wsapi", "{{ .Values.wsApi }}", "--wsorigins", "{{ .Values.wsOrigins }}", "--gasprice", "{{ .Values.gasPrice }}", "--unlock", "$(cat /node/walletid.txt)", "--password", "/pass/password.txt", "--mine"]
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           ports:
@@ -33,49 +33,80 @@ spec:
         - name: mkdir-{{ template "geth.fullname" . }}
           image: busybox
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
-          command: [ "sh", "-c", "mkdir -p /root/node"]
+          command: [ "sh", "-c", "mkdir -p /node"]
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           volumeMounts:
             - name: data
               mountPath: /root
-        - name: setpw-{{ template "geth.fullname" . }}
+        - name: catgen-{{ template "geth.fullname" . }}
           image: busybox
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
-          command: ["echo", "{{ .Values.walletpassword }}", ">/root/node/password.txt"]
+          command: [ "sh", "-c", "cat /gen/genesis.json"]
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           volumeMounts:
             - name: data
               mountPath: /root
-        - name: getgenesis-{{ template "geth.fullname" . }}
+            - name: config
+              mountPath: /gen
+        - name: catpass-{{ template "geth.fullname" . }}
           image: busybox
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
-          command: ["echo", "{{ .Values.genesisjson }}", ">/root/node/genesis.json"]
+          command: [ "sh", "-c", "cat /pass/password.txt"]
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           volumeMounts:
             - name: data
               mountPath: /root
+            - name: password
+              mountPath: /pass
         - name: walletinit-{{ template "geth.fullname" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
-          command: ["/geth", "--datadir", "/root/node/", "--password", "/root/node/password.txt", "account", "new"]
+          command: ["/geth", "--datadir", "/node/", "--password", "/pass/password.txt", "account", "new"]
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           volumeMounts:
             - name: data
               mountPath: /root
+            - name: password
+              mountPath: /pass
+        - name: getwallet-{{ template "geth.fullname" . }}
+          image: busybox
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          command: [ "sh", "-c", "ls /node/keystore | sed 's/.*--\(.*\)$/\1/' > /node/walletid.txt"]
+          resources:
+  {{ toYaml .Values.resources | indent 10 }}
+          volumeMounts:
+            - name: data
+              mountPath: /root
+            - name: password
+              mountPath: /pass
         - name: blockchainit-{{ template "geth.fullname" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
-          command: ["/geth", "--datadir", "/root/node/", "init", "/root/node/genesis.json"]
+          command: ["/geth", "--datadir", "/node/", "init", "/gen/genesis.json"]
           resources:
   {{ toYaml .Values.resources | indent 10 }}
           volumeMounts:
             - name: data
               mountPath: /root
+            - name: config
+              mountPath: /gen
       volumes:
+        - name: config
+          configMap:
+            name: example-genesis-json
+            items:
+            - key: genesis.json
+              path: genesis.json
+        - name: password
+          configMap:
+            name: walletpassword
+            items:
+            - key: password.txt
+              path: password.txt
         - name: data
         {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
