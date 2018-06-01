@@ -10,8 +10,11 @@ wsApi: "net,eth,personal,web3"
 wsOrigins: "*"
 networkId: 1515
 syncMode: "fast"
+walletID2: '08a58f09194e403d02a1928a7bf78646cfc260b0'
+walletID3: '87366ef81db496edd0ea2055ca605e8686eec1e6'
 
 gasPrice: 1
+gasLimit: '0x59A5380'
 genesisjson: |
         blah
 
